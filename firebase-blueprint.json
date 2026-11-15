@@ -1,0 +1,462 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account profile linking an authenticated user to a store and UI preferences.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "description": "User email address" },
+        "storeId": { "type": "string", "description": "Active store ID" },
+        "role": { "type": "string", "description": "Role label in the active store" },
+        "isSimpleMode": { "type": "boolean", "description": "Whether Simple Mode UI is active" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp" }
+      }
+    },
+    "Store": {
+      "title": "Store",
+      "description": "Retail store metadata and membership index.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "shopType": { "type": "string" },
+        "productCategories": { "type": "array" },
+        "ownerId": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "members": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "ownerId", "memberUids"]
+    },
+    "StoreMember": {
+      "title": "StoreMember",
+      "description": "Staff or owner membership record with granular permissions.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "roleLabel": { "type": "string" },
+        "permissionLevel": { "type": "string" },
+        "permissions": { "type": "object" },
+        "status": { "type": "string" },
+        "joinedTime": { "type": "integer" },
+        "invitedBy": { "type": "string" },
+        "inviteCode": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "role", "status"]
+    },
+    "StoreInvite": {
+      "title": "StoreInvite",
+      "description": "Single-use 8-character staff invite code for joining a store.",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string" },
+        "storeId": { "type": "string" },
+        "storeName": { "type": "string" },
+        "staffName": { "type": "string" },
+        "roleLabel": { "type": "string" },
+        "permissionLevel": { "type": "string" },
+        "permissions": { "type": "object" },
+        "createdByUid": { "type": "string" },
+        "createdByName": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "used", "cancelled"] },
+        "createdAt": { "type": "integer" },
+        "expiresAt": { "type": "integer" },
+        "usedByUid": { "type": "string" },
+        "usedByEmail": { "type": "string" },
+        "usedAt": { "type": "integer" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["code", "storeId", "createdByUid", "status", "expiresAt"]
+    },
+    "StoreCounters": {
+      "title": "StoreCounters",
+      "description": "Atomic sequence counters for invoice and payment numbers.",
+      "type": "object",
+      "properties": {
+        "invoiceSeq": { "type": "integer" },
+        "paymentSeq": { "type": "integer" }
+      }
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Inventory item sold or purchased by the store.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "name": { "type": "string" },
+        "nameBn": { "type": "string" },
+        "barcode": { "type": "string" },
+        "category": { "type": "string" },
+        "unit": { "type": "string" },
+        "buyUnit": { "type": "string" },
+        "buyConversion": { "type": "number" },
+        "sellUnits": { "type": "object" },
+        "buyPrice": { "type": "number" },
+        "sellPrice": { "type": "number" },
+        "wholesalePrice": { "type": "number" },
+        "mrp": { "type": "number" },
+        "itemLocation": { "type": "string" },
+        "partyRate": { "type": "number" },
+        "stock": { "type": "number" },
+        "lowStockLimit": { "type": "number" },
+        "photoUri": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "name", "buyPrice", "sellPrice", "stock"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Completed POS sale invoice.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "invoiceNo": { "type": "string" },
+        "items": { "type": "array" },
+        "totalItems": { "type": "number" },
+        "subtotal": { "type": "number" },
+        "discount": { "type": "number" },
+        "grandTotal": { "type": "number" },
+        "profit": { "type": "number" },
+        "paymentType": { "type": "string", "enum": ["cash", "baki"] },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "notes": { "type": "string" },
+        "soldBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "invoiceNo", "items", "grandTotal", "paymentType", "soldBy"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Customer record and Baki credit balance.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "name": { "type": "string" },
+        "mobile": { "type": "string" },
+        "address": { "type": "string" },
+        "notes": { "type": "string" },
+        "currentBalance": { "type": "number" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "name", "currentBalance"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Customer Baki payment received.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "paymentNo": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerMobile": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "paymentDate": { "type": "integer" },
+        "note": { "type": "string" },
+        "receivedBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "paymentNo", "amount", "receivedBy"]
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "Supplier account and payable balance.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "name": { "type": "string" },
+        "mobile": { "type": "string" },
+        "company": { "type": "string" },
+        "address": { "type": "string" },
+        "balance": { "type": "number" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "name", "balance"]
+    },
+    "Purchase": {
+      "title": "Purchase",
+      "description": "Stock purchase record from a supplier.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "purchaseNo": { "type": "string" },
+        "supplierId": { "type": "string" },
+        "supplierName": { "type": "string" },
+        "supplierMobile": { "type": "string" },
+        "items": { "type": "array" },
+        "totalItems": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paidAmount": { "type": "number" },
+        "dueAmount": { "type": "number" },
+        "paymentType": { "type": "string" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "note": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "purchaseNo", "items", "totalAmount", "createdBy"]
+    },
+    "PurchaseReturn": {
+      "title": "PurchaseReturn",
+      "description": "Return of purchased stock to supplier.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "returnNo": { "type": "string" },
+        "purchaseId": { "type": "string" },
+        "supplierId": { "type": "string" },
+        "supplierName": { "type": "string" },
+        "amount": { "type": "number" },
+        "reason": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "returnNo", "amount", "createdBy"]
+    },
+    "HealthFixLog": {
+      "title": "HealthFixLog",
+      "description": "Audit log for data health check fixes.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "problemType": { "type": "string" },
+        "description": { "type": "string" },
+        "entityId": { "type": "string" },
+        "entityCollection": { "type": "string" },
+        "fixDetails": { "type": "string" },
+        "fixedBy": { "type": "string" },
+        "fixedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "problemType", "fixedBy"]
+    },
+    "Account": {
+      "title": "Account",
+      "description": "Cash, bank, or mobile wallet account.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "accountNumber": { "type": "string" },
+        "openingBalance": { "type": "number" },
+        "isDefault": { "type": "boolean" },
+        "isArchived": { "type": "boolean" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "name", "type"]
+    },
+    "AccountAdjustment": {
+      "title": "AccountAdjustment",
+      "description": "Manual cash/bank balance adjustment log.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "oldBalance": { "type": "number" },
+        "newBalance": { "type": "number" },
+        "difference": { "type": "number" },
+        "note": { "type": "string" },
+        "adjustedBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "accountId", "note", "adjustedBy"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Business expense entry.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "date": { "type": "integer" },
+        "note": { "type": "string" },
+        "receiptUri": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "isDeleted": { "type": "boolean" },
+        "deletedNote": { "type": "string" },
+        "deletedBy": { "type": "string" },
+        "deletedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "amount", "category", "createdBy"]
+    },
+    "OtherIncome": {
+      "title": "OtherIncome",
+      "description": "Non-sale store income entry.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "date": { "type": "integer" },
+        "note": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "isDeleted": { "type": "boolean" },
+        "deletedNote": { "type": "string" },
+        "deletedBy": { "type": "string" },
+        "deletedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "amount", "category", "createdBy"]
+    },
+    "StoreCategory": {
+      "title": "StoreCategory",
+      "description": "Custom expense or income category.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "type": { "type": "string", "enum": ["expense", "income"] },
+        "name": { "type": "string" },
+        "isArchived": { "type": "boolean" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "type", "name"]
+    },
+    "StoreNote": {
+      "title": "StoreNote",
+      "description": "Store memo or reminder note.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "title": { "type": "string" },
+        "text": { "type": "string" },
+        "date": { "type": "integer" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "title"]
+    },
+    "SupplierPayment": {
+      "title": "SupplierPayment",
+      "description": "Payment made to a supplier.",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string" },
+        "paymentNo": { "type": "string" },
+        "supplierId": { "type": "string" },
+        "supplierName": { "type": "string" },
+        "amount": { "type": "number" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "paymentDate": { "type": "integer" },
+        "note": { "type": "string" },
+        "paidBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "paymentNo", "supplierId", "amount", "paidBy"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profile documents"
+    },
+    "/invites/{code}": {
+      "schema": { "$ref": "#/entities/StoreInvite" },
+      "description": "Staff invite codes"
+    },
+    "/stores/{storeId}": {
+      "schema": { "$ref": "#/entities/Store" },
+      "description": "Retail stores"
+    },
+    "/stores/{storeId}/meta/{docId}": {
+      "schema": { "$ref": "#/entities/StoreCounters" },
+      "description": "Store counters document"
+    },
+    "/stores/{storeId}/members/{memberId}": {
+      "schema": { "$ref": "#/entities/StoreMember" },
+      "description": "Store member records"
+    },
+    "/stores/{storeId}/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Store products inventory"
+    },
+    "/stores/{storeId}/sales/{saleId}": {
+      "schema": { "$ref": "#/entities/Sale" },
+      "description": "POS sale records"
+    },
+    "/stores/{storeId}/customers/{customerId}": {
+      "schema": { "$ref": "#/entities/Customer" },
+      "description": "Customer Baki ledger"
+    },
+    "/stores/{storeId}/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/Payment" },
+      "description": "Customer Baki payments"
+    },
+    "/stores/{storeId}/suppliers/{supplierId}": {
+      "schema": { "$ref": "#/entities/Supplier" },
+      "description": "Store suppliers"
+    },
+    "/stores/{storeId}/purchases/{purchaseId}": {
+      "schema": { "$ref": "#/entities/Purchase" },
+      "description": "Stock purchases"
+    },
+    "/stores/{storeId}/purchaseReturns/{returnId}": {
+      "schema": { "$ref": "#/entities/PurchaseReturn" },
+      "description": "Purchase returns"
+    },
+    "/stores/{storeId}/healthFixLogs/{logId}": {
+      "schema": { "$ref": "#/entities/HealthFixLog" },
+      "description": "Data health fix audit logs"
+    },
+    "/stores/{storeId}/accounts/{accountId}": {
+      "schema": { "$ref": "#/entities/Account" },
+      "description": "Cash, bank, and wallet accounts"
+    },
+    "/stores/{storeId}/accountAdjustments/{adjustmentId}": {
+      "schema": { "$ref": "#/entities/AccountAdjustment" },
+      "description": "Account balance adjustment logs"
+    },
+    "/stores/{storeId}/expenses/{expenseId}": {
+      "schema": { "$ref": "#/entities/Expense" },
+      "description": "Store expenses"
+    },
+    "/stores/{storeId}/otherIncomes/{incomeId}": {
+      "schema": { "$ref": "#/entities/OtherIncome" },
+      "description": "Other store income"
+    },
+    "/stores/{storeId}/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/StoreCategory" },
+      "description": "Custom expense and income categories"
+    },
+    "/stores/{storeId}/notes/{noteId}": {
+      "schema": { "$ref": "#/entities/StoreNote" },
+      "description": "Store notes"
+    },
+    "/stores/{storeId}/supplierPayments/{paymentId}": {
+      "schema": { "$ref": "#/entities/SupplierPayment" },
+      "description": "Payments made to suppliers"
+    }
+  }
+}
